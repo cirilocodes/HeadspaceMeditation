@@ -1,9 +1,11 @@
+import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { User, Calendar, Mail, LogOut, Settings, Heart, Trophy } from "lucide-react";
+import SettingsModal from "./settings-modal";
 import type { User as UserType } from "@shared/schema";
 
 interface ProfileModalProps {
@@ -13,6 +15,8 @@ interface ProfileModalProps {
 }
 
 export default function ProfileModal({ isOpen, onClose, user }: ProfileModalProps) {
+  const [showSettings, setShowSettings] = useState(false);
+  
   const initials = `${user.firstName?.[0] || ''}${user.lastName?.[0] || ''}`.toUpperCase();
   const joinDate = new Date(user.createdAt || Date.now()).toLocaleDateString('en-US', {
     year: 'numeric',
@@ -96,7 +100,7 @@ export default function ProfileModal({ isOpen, onClose, user }: ProfileModalProp
             <Button 
               variant="outline" 
               className="w-full" 
-              onClick={onClose}
+              onClick={() => setShowSettings(true)}
             >
               <Settings className="h-4 w-4 mr-2" />
               Account Settings
@@ -113,6 +117,12 @@ export default function ProfileModal({ isOpen, onClose, user }: ProfileModalProp
           </div>
         </div>
       </DialogContent>
+      
+      <SettingsModal
+        isOpen={showSettings}
+        onClose={() => setShowSettings(false)}
+        userId={user.id}
+      />
     </Dialog>
   );
 }

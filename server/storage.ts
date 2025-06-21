@@ -1,8 +1,11 @@
 import { 
   users, meditationSessions, userProgress, userFavorites, userStats,
+  workouts, dailyGoals, audioFiles, userSettings,
   type User, type UpsertUser, type Session, type InsertSession,
   type UserProgress, type InsertUserProgress, type UserFavorite, 
-  type InsertUserFavorite, type UserStats, type InsertUserStats
+  type InsertUserFavorite, type UserStats, type InsertUserStats,
+  type Workout, type InsertWorkout, type DailyGoal, type InsertDailyGoal,
+  type AudioFile, type InsertAudioFile, type UserSettings, type InsertUserSettings
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and } from "drizzle-orm";
@@ -35,6 +38,26 @@ export interface IStorage {
   getUserStats(userId: string): Promise<UserStats | undefined>;
   createUserStats(stats: InsertUserStats): Promise<UserStats>;
   updateUserStats(userId: string, updates: Partial<UserStats>): Promise<UserStats | undefined>;
+  
+  // Workout methods
+  getAllWorkouts(): Promise<Workout[]>;
+  getWorkoutsByCategory(category: string): Promise<Workout[]>;
+  getWorkout(id: string): Promise<Workout | undefined>;
+  createWorkout(workout: InsertWorkout): Promise<Workout>;
+  
+  // Daily goals methods
+  getDailyGoal(userId: string, date: Date): Promise<DailyGoal | undefined>;
+  createDailyGoal(goal: InsertDailyGoal): Promise<DailyGoal>;
+  updateDailyGoal(userId: string, date: Date, updates: Partial<DailyGoal>): Promise<DailyGoal | undefined>;
+  
+  // Audio files methods
+  getAudioFile(sessionId: string): Promise<AudioFile | undefined>;
+  createAudioFile(audioFile: InsertAudioFile): Promise<AudioFile>;
+  
+  // User settings methods
+  getUserSettings(userId: string): Promise<UserSettings | undefined>;
+  createUserSettings(settings: InsertUserSettings): Promise<UserSettings>;
+  updateUserSettings(userId: string, updates: Partial<UserSettings>): Promise<UserSettings | undefined>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -56,7 +79,7 @@ export class DatabaseStorage implements IStorage {
           category: "focus",
           level: "beginner",
           duration: 10,
-          audioUrl: "/audio/morning-mindfulness.mp3",
+          audioUrl: "https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3",
           imageUrl: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=400",
           type: "meditation"
         },
@@ -66,7 +89,7 @@ export class DatabaseStorage implements IStorage {
           category: "focus",
           level: "intermediate",
           duration: 20,
-          audioUrl: "/audio/deep-focus.mp3",
+          audioUrl: "https://www.soundjay.com/misc/sounds/rain-01.mp3",
           imageUrl: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=400",
           type: "meditation"
         },
@@ -76,7 +99,7 @@ export class DatabaseStorage implements IStorage {
           category: "stress",
           level: "advanced",
           duration: 15,
-          audioUrl: "/audio/stress-release.mp3",
+          audioUrl: "https://www.soundjay.com/misc/sounds/wind-01.mp3",
           imageUrl: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=400",
           type: "meditation"
         },
@@ -86,7 +109,7 @@ export class DatabaseStorage implements IStorage {
           category: "sleep",
           level: "beginner",
           duration: 25,
-          audioUrl: "/audio/bedtime-preparation.mp3",
+          audioUrl: "https://www.soundjay.com/misc/sounds/water-01.mp3",
           imageUrl: "https://images.unsplash.com/photo-1520637836862-4d197d17c52a?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=400",
           type: "meditation"
         },
@@ -96,7 +119,7 @@ export class DatabaseStorage implements IStorage {
           category: "sleep",
           level: "beginner",
           duration: 25,
-          audioUrl: "/audio/enchanted-forest.mp3",
+          audioUrl: "https://www.soundjay.com/misc/sounds/forest-01.mp3",
           imageUrl: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=400",
           type: "sleep_story"
         },
@@ -106,7 +129,7 @@ export class DatabaseStorage implements IStorage {
           category: "sleep",
           level: "beginner",
           duration: 0, // Continuous
-          audioUrl: "/audio/ocean-waves.mp3",
+          audioUrl: "https://www.soundjay.com/misc/sounds/ocean-01.mp3",
           imageUrl: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=400",
           type: "sleep_sound"
         },
@@ -116,7 +139,7 @@ export class DatabaseStorage implements IStorage {
           category: "sleep",
           level: "beginner",
           duration: 0, // Continuous
-          audioUrl: "/audio/forest-rain.mp3",
+          audioUrl: "https://www.soundjay.com/misc/sounds/rain-02.mp3",
           imageUrl: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=400",
           type: "sleep_sound"
         }
@@ -124,6 +147,50 @@ export class DatabaseStorage implements IStorage {
 
       for (const session of sampleSessions) {
         await this.createSession(session);
+      }
+
+      // Create sample workouts
+      const sampleWorkouts: InsertWorkout[] = [
+        {
+          title: "Morning Yoga Flow",
+          description: "Gentle yoga sequence to start your day",
+          category: "yoga",
+          level: "beginner",
+          duration: 20,
+          videoUrl: "https://www.youtube.com/embed/VaoV1PrYft4",
+          imageUrl: "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=400",
+          instructions: ["Start in mountain pose", "Flow through sun salutations", "Hold warrior poses", "End in savasana"],
+          equipment: ["Yoga mat"]
+        },
+        {
+          title: "Core Strength",
+          description: "Build core strength with targeted exercises",
+          category: "strength",
+          level: "intermediate",
+          duration: 15,
+          videoUrl: "https://www.youtube.com/embed/3p8EBPVZ2Iw",
+          imageUrl: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=400",
+          instructions: ["Warm up with gentle movements", "Perform planks and crunches", "Include side planks", "Cool down with stretches"],
+          equipment: ["Exercise mat"]
+        },
+        {
+          title: "Evening Stretch",
+          description: "Relaxing stretches to unwind",
+          category: "yoga",
+          level: "beginner",
+          duration: 10,
+          videoUrl: "https://www.youtube.com/embed/coG7dHSowbE",
+          imageUrl: "https://images.unsplash.com/photo-1506629905607-f5b8a816cea5?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=400",
+          instructions: ["Focus on breathing", "Gentle spinal twists", "Hip openers", "Forward folds"],
+          equipment: ["Yoga mat", "Pillows"]
+        }
+      ];
+
+      const existingWorkouts = await db.select().from(workouts).limit(1);
+      if (existingWorkouts.length === 0) {
+        for (const workout of sampleWorkouts) {
+          await this.createWorkout(workout);
+        }
       }
     } catch (error) {
       console.error("Error seeding data:", error);
@@ -158,6 +225,21 @@ export class DatabaseStorage implements IStorage {
         totalMinutes: 0,
         weeklyMinutes: 0,
         favoriteCategory: null
+      });
+    }
+
+    // Create initial user settings if user is new
+    const existingSettings = await this.getUserSettings(user.id);
+    if (!existingSettings) {
+      await this.createUserSettings({
+        userId: user.id,
+        theme: "system",
+        notifications: true,
+        reminderTime: "09:00",
+        language: "en",
+        timezone: "UTC",
+        autoPlay: true,
+        downloadQuality: "high"
       });
     }
 
@@ -276,6 +358,107 @@ export class DatabaseStorage implements IStorage {
       .where(eq(userStats.userId, userId))
       .returning();
     return stats;
+  }
+
+  // Workout methods
+  async getAllWorkouts(): Promise<Workout[]> {
+    return await db.select().from(workouts);
+  }
+
+  async getWorkoutsByCategory(category: string): Promise<Workout[]> {
+    return await db.select().from(workouts).where(eq(workouts.category, category));
+  }
+
+  async getWorkout(id: string): Promise<Workout | undefined> {
+    const [workout] = await db.select().from(workouts).where(eq(workouts.id, id));
+    return workout;
+  }
+
+  async createWorkout(insertWorkout: InsertWorkout): Promise<Workout> {
+    const id = uuidv4();
+    const [workout] = await db
+      .insert(workouts)
+      .values({ ...insertWorkout, id })
+      .returning();
+    return workout;
+  }
+
+  // Daily goals methods
+  async getDailyGoal(userId: string, date: Date): Promise<DailyGoal | undefined> {
+    const startOfDay = new Date(date);
+    startOfDay.setHours(0, 0, 0, 0);
+    const endOfDay = new Date(date);
+    endOfDay.setHours(23, 59, 59, 999);
+
+    const [goal] = await db.select().from(dailyGoals)
+      .where(and(
+        eq(dailyGoals.userId, userId),
+        and(
+          eq(dailyGoals.date, startOfDay),
+          eq(dailyGoals.date, endOfDay)
+        )
+      ));
+    return goal;
+  }
+
+  async createDailyGoal(insertGoal: InsertDailyGoal): Promise<DailyGoal> {
+    const id = uuidv4();
+    const [goal] = await db
+      .insert(dailyGoals)
+      .values({ ...insertGoal, id })
+      .returning();
+    return goal;
+  }
+
+  async updateDailyGoal(userId: string, date: Date, updates: Partial<DailyGoal>): Promise<DailyGoal | undefined> {
+    const startOfDay = new Date(date);
+    startOfDay.setHours(0, 0, 0, 0);
+
+    const [goal] = await db
+      .update(dailyGoals)
+      .set(updates)
+      .where(and(eq(dailyGoals.userId, userId), eq(dailyGoals.date, startOfDay)))
+      .returning();
+    return goal;
+  }
+
+  // Audio files methods
+  async getAudioFile(sessionId: string): Promise<AudioFile | undefined> {
+    const [audioFile] = await db.select().from(audioFiles).where(eq(audioFiles.sessionId, sessionId));
+    return audioFile;
+  }
+
+  async createAudioFile(insertAudioFile: InsertAudioFile): Promise<AudioFile> {
+    const id = uuidv4();
+    const [audioFile] = await db
+      .insert(audioFiles)
+      .values({ ...insertAudioFile, id })
+      .returning();
+    return audioFile;
+  }
+
+  // User settings methods
+  async getUserSettings(userId: string): Promise<UserSettings | undefined> {
+    const [settings] = await db.select().from(userSettings).where(eq(userSettings.userId, userId));
+    return settings;
+  }
+
+  async createUserSettings(insertSettings: InsertUserSettings): Promise<UserSettings> {
+    const id = uuidv4();
+    const [settings] = await db
+      .insert(userSettings)
+      .values({ ...insertSettings, id })
+      .returning();
+    return settings;
+  }
+
+  async updateUserSettings(userId: string, updates: Partial<UserSettings>): Promise<UserSettings | undefined> {
+    const [settings] = await db
+      .update(userSettings)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(userSettings.userId, userId))
+      .returning();
+    return settings;
   }
 }
 

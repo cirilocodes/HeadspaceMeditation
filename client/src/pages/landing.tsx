@@ -49,10 +49,10 @@ export default function Landing() {
             </div>
             
             <Button 
-              onClick={() => window.location.href = '/api/login'}
+              onClick={() => window.location.href = '/api/auth/google'}
               className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold px-8 py-2 rounded-full transition-all transform hover:scale-105"
             >
-              Sign In
+              Sign In with Google
             </Button>
           </div>
         </div>
@@ -69,7 +69,7 @@ export default function Landing() {
               Join millions who have discovered the power of mindfulness. Reduce stress, improve sleep, and find clarity with guided meditations.
             </p>
             <Button 
-              onClick={() => window.location.href = '/api/login'}
+              onClick={() => window.location.href = '/api/auth/google'}
               size="lg"
               className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold px-12 py-4 rounded-full text-lg transition-all transform hover:scale-105 shadow-xl"
             >
@@ -149,7 +149,7 @@ export default function Landing() {
             Start your mindfulness journey today with personalized meditation sessions.
           </p>
           <Button 
-            onClick={() => window.location.href = '/api/login'}
+            onClick={() => window.location.href = '/api/auth/google'}
             size="lg"
             className="bg-white text-blue-600 hover:bg-gray-100 font-semibold px-12 py-4 rounded-full text-lg transition-all transform hover:scale-105"
           >

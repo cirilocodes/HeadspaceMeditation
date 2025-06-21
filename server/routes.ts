@@ -1,8 +1,11 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { setupAuth, isAuthenticated } from "./replitAuth";
-import { insertSessionSchema, insertUserProgressSchema, insertUserFavoriteSchema } from "@shared/schema";
+import { setupAuth, isAuthenticated } from "./googleAuth";
+import { 
+  insertSessionSchema, insertUserProgressSchema, insertUserFavoriteSchema,
+  insertWorkoutSchema, insertDailyGoalSchema, insertUserSettingsSchema
+} from "@shared/schema";
 import { z } from "zod";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -12,8 +15,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Auth routes
   app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
-      const user = await storage.getUser(userId);
+      const user = req.user;
       res.json(user);
     } catch (error) {
       console.error("Error fetching user:", error);
@@ -156,6 +158,121 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(stats);
     } catch (error) {
       res.status(500).json({ message: "Failed to update stats" });
+    }
+  });
+
+  // Workout routes
+  app.get("/api/workouts", async (req, res) => {
+    try {
+      const { category } = req.query;
+      const workouts = category 
+        ? await storage.getWorkoutsByCategory(category as string)
+        : await storage.getAllWorkouts();
+      res.json(workouts);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch workouts" });
+    }
+  });
+
+  app.get("/api/workouts/:id", async (req, res) => {
+    try {
+      const workout = await storage.getWorkout(req.params.id);
+      if (!workout) {
+        return res.status(404).json({ message: "Workout not found" });
+      }
+      res.json(workout);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch workout" });
+    }
+  });
+
+  app.post("/api/workouts", async (req, res) => {
+    try {
+      const validatedData = insertWorkoutSchema.parse(req.body);
+      const workout = await storage.createWorkout(validatedData);
+      res.json(workout);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Invalid data", errors: error.errors });
+      }
+      res.status(500).json({ message: "Failed to create workout" });
+    }
+  });
+
+  // Daily goals routes
+  app.get("/api/goals/:userId/:date", async (req, res) => {
+    try {
+      const { userId, date } = req.params;
+      const goalDate = new Date(date);
+      const goal = await storage.getDailyGoal(userId, goalDate);
+      
+      if (!goal) {
+        // Create a new goal for the day
+        const newGoal = await storage.createDailyGoal({
+          userId,
+          date: goalDate,
+          meditationMinutes: 0,
+          targetMeditationMinutes: 10,
+          workoutMinutes: 0,
+          targetWorkoutMinutes: 30,
+          gratitudeEntries: 0,
+          targetGratitudeEntries: 3,
+          waterGlasses: 0,
+          targetWaterGlasses: 8,
+          completed: false
+        });
+        return res.json(newGoal);
+      }
+      
+      res.json(goal);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch daily goal" });
+    }
+  });
+
+  app.patch("/api/goals/:userId/:date", async (req, res) => {
+    try {
+      const { userId, date } = req.params;
+      const goalDate = new Date(date);
+      const updates = req.body;
+      
+      const goal = await storage.updateDailyGoal(userId, goalDate, updates);
+      if (!goal) {
+        return res.status(404).json({ message: "Daily goal not found" });
+      }
+      
+      res.json(goal);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to update daily goal" });
+    }
+  });
+
+  // User settings routes
+  app.get("/api/settings/:userId", isAuthenticated, async (req, res) => {
+    try {
+      const settings = await storage.getUserSettings(req.params.userId);
+      if (!settings) {
+        return res.status(404).json({ message: "Settings not found" });
+      }
+      res.json(settings);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch settings" });
+    }
+  });
+
+  app.patch("/api/settings/:userId", isAuthenticated, async (req, res) => {
+    try {
+      const userId = req.params.userId;
+      const updates = req.body;
+      
+      const settings = await storage.updateUserSettings(userId, updates);
+      if (!settings) {
+        return res.status(404).json({ message: "Settings not found" });
+      }
+      
+      res.json(settings);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to update settings" });
     }
   });
 

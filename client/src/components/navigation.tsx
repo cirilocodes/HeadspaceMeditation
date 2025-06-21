@@ -1,8 +1,8 @@
 import { Button } from "@/components/ui/button";
 
 interface NavigationProps {
-  activeTab: "meditate" | "sleep" | "progress";
-  onTabChange: (tab: "meditate" | "sleep" | "progress") => void;
+  activeTab: "meditate" | "sleep" | "progress" | "workouts" | "goals";
+  onTabChange: (tab: "meditate" | "sleep" | "progress" | "workouts" | "goals") => void;
 }
 
 export default function Navigation({ activeTab, onTabChange }: NavigationProps) {

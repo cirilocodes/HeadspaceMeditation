@@ -64,6 +64,59 @@ export const userStats = pgTable("user_stats", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+export const workouts = pgTable("workouts", {
+  id: varchar("id").primaryKey().notNull(),
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  category: text("category").notNull(), // yoga, pilates, strength, cardio
+  level: text("level").notNull(), // beginner, intermediate, advanced
+  duration: integer("duration").notNull(), // in minutes
+  videoUrl: text("video_url").notNull(),
+  imageUrl: text("image_url").notNull(),
+  instructions: text("instructions").array(),
+  equipment: text("equipment").array(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const dailyGoals = pgTable("daily_goals", {
+  id: varchar("id").primaryKey().notNull(),
+  userId: varchar("user_id").notNull(),
+  date: timestamp("date").notNull(),
+  meditationMinutes: integer("meditation_minutes").default(0),
+  targetMeditationMinutes: integer("target_meditation_minutes").default(10),
+  workoutMinutes: integer("workout_minutes").default(0),
+  targetWorkoutMinutes: integer("target_workout_minutes").default(30),
+  gratitudeEntries: integer("gratitude_entries").default(0),
+  targetGratitudeEntries: integer("target_gratitude_entries").default(3),
+  waterGlasses: integer("water_glasses").default(0),
+  targetWaterGlasses: integer("target_water_glasses").default(8),
+  completed: boolean("completed").default(false),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const audioFiles = pgTable("audio_files", {
+  id: varchar("id").primaryKey().notNull(),
+  sessionId: varchar("session_id").notNull(),
+  filename: text("filename").notNull(),
+  url: text("url").notNull(),
+  duration: integer("duration").notNull(), // in seconds
+  fileSize: integer("file_size").notNull(), // in bytes
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const userSettings = pgTable("user_settings", {
+  id: varchar("id").primaryKey().notNull(),
+  userId: varchar("user_id").notNull(),
+  theme: text("theme").default("system"), // light, dark, system
+  notifications: boolean("notifications").default(true),
+  reminderTime: text("reminder_time").default("09:00"),
+  language: text("language").default("en"),
+  timezone: text("timezone").default("UTC"),
+  autoPlay: boolean("auto_play").default(true),
+  downloadQuality: text("download_quality").default("high"), // low, medium, high
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 // Insert schemas
 export const upsertUserSchema = createInsertSchema(users);
 export const insertSessionSchema = createInsertSchema(meditationSessions).omit({
@@ -82,6 +135,22 @@ export const insertUserStatsSchema = createInsertSchema(userStats).omit({
   id: true,
   updatedAt: true,
 });
+export const insertWorkoutSchema = createInsertSchema(workouts).omit({
+  id: true,
+  createdAt: true,
+});
+export const insertDailyGoalSchema = createInsertSchema(dailyGoals).omit({
+  id: true,
+  createdAt: true,
+});
+export const insertAudioFileSchema = createInsertSchema(audioFiles).omit({
+  id: true,
+  createdAt: true,
+});
+export const insertUserSettingsSchema = createInsertSchema(userSettings).omit({
+  id: true,
+  updatedAt: true,
+});
 
 // Types
 export type UpsertUser = z.infer<typeof upsertUserSchema>;
@@ -94,3 +163,11 @@ export type UserFavorite = typeof userFavorites.$inferSelect;
 export type InsertUserFavorite = z.infer<typeof insertUserFavoriteSchema>;
 export type UserStats = typeof userStats.$inferSelect;
 export type InsertUserStats = z.infer<typeof insertUserStatsSchema>;
+export type Workout = typeof workouts.$inferSelect;
+export type InsertWorkout = z.infer<typeof insertWorkoutSchema>;
+export type DailyGoal = typeof dailyGoals.$inferSelect;
+export type InsertDailyGoal = z.infer<typeof insertDailyGoalSchema>;
+export type AudioFile = typeof audioFiles.$inferSelect;
+export type InsertAudioFile = z.infer<typeof insertAudioFileSchema>;
+export type UserSettings = typeof userSettings.$inferSelect;
+export type InsertUserSettings = z.infer<typeof insertUserSettingsSchema>;

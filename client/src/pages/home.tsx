@@ -9,14 +9,16 @@ import ProgressStats from "@/components/progress-stats";
 import SearchModal from "@/components/search-modal";
 import ProfileModal from "@/components/profile-modal";
 import MeditationTimer from "@/components/meditation-timer";
+import WorkoutCard from "@/components/workout-card";
+import DailyGoals from "@/components/daily-goals";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Leaf, Brain, Heart, Moon, BookOpen, Waves, CloudRain, Star, Search, UserCircle, LogOut, Play, Settings } from "lucide-react";
+import { Leaf, Brain, Heart, Moon, BookOpen, Waves, CloudRain, Star, Search, UserCircle, LogOut, Play, Settings, Dumbbell, Target } from "lucide-react";
 import { isUnauthorizedError } from "@/lib/authUtils";
 import type { Session } from "@shared/schema";
 
 export default function Home() {
-  const [activeTab, setActiveTab] = useState<"meditate" | "sleep" | "progress">("meditate");
+  const [activeTab, setActiveTab] = useState<"meditate" | "sleep" | "progress" | "workouts" | "goals">("meditate");
   const [currentSession, setCurrentSession] = useState<Session | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
@@ -34,7 +36,7 @@ export default function Home() {
         variant: "destructive",
       });
       setTimeout(() => {
-        window.location.href = "/api/login";
+        window.location.href = "/api/auth/google";
       }, 500);
       return;
     }
@@ -52,6 +54,11 @@ export default function Home() {
   const { data: sleepSessions = [] } = useQuery<Session[]>({
     queryKey: ["/api/sessions", "sleep"],
     queryFn: () => fetch("/api/sessions?category=sleep").then(res => res.json()),
+  });
+
+  const { data: workouts = [] } = useQuery({
+    queryKey: ["/api/workouts"],
+    queryFn: () => fetch("/api/workouts").then(res => res.json()),
   });
 
   const handlePlaySession = (session: Session) => {
@@ -382,6 +389,48 @@ export default function Home() {
               </div>
             </section>
           </>
+        )}
+
+        {activeTab === "workouts" && (
+          <>
+            <section className="mb-12">
+              <div className="bg-gradient-to-br from-green-600 via-emerald-600 to-teal-600 rounded-3xl p-8 text-white relative overflow-hidden">
+                <div className="relative z-10">
+                  <h2 className="text-3xl md:text-4xl font-bold mb-4">Stay Active</h2>
+                  <p className="text-lg mb-6 opacity-90">Strengthen your body with guided workouts</p>
+                  <Button 
+                    className="bg-white text-green-600 px-8 py-3 rounded-full font-semibold hover:bg-opacity-90 transition-all transform hover:scale-105"
+                    onClick={() => {
+                      const randomWorkout = workouts[Math.floor(Math.random() * workouts.length)];
+                      if (randomWorkout) window.open(randomWorkout.videoUrl, '_blank');
+                    }}
+                  >
+                    <Play className="h-4 w-4 mr-2" />
+                    Start Training
+                  </Button>
+                </div>
+                <div className="absolute top-8 right-8 w-32 h-32 bg-white bg-opacity-10 rounded-full animate-float"></div>
+                <div className="absolute bottom-8 right-20 w-20 h-20 bg-white bg-opacity-10 rounded-full animate-pulse-slow"></div>
+              </div>
+            </section>
+
+            <section>
+              <h3 className="text-2xl font-bold mb-6 text-gray-800 dark:text-white">Workout Library</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {workouts.map((workout: any) => (
+                  <WorkoutCard
+                    key={workout.id}
+                    workout={workout}
+                    onPlay={() => window.open(workout.videoUrl, '_blank')}
+                  />
+                ))}
+              </div>
+            </section>
+          </>
+        )}
+
+        {activeTab === "goals" && user && (
+          <DailyGoals userId={user.id} />
         )}
 
         {activeTab === "progress" && user && (
