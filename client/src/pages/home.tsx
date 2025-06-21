@@ -4,6 +4,7 @@ import Navigation from "@/components/navigation";
 import SessionCard from "@/components/session-card";
 import AudioPlayer from "@/components/audio-player";
 import ProgressStats from "@/components/progress-stats";
+import SearchModal from "@/components/search-modal";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Leaf, Brain, Heart, Moon, BookOpen, Waves, CloudRain, Star, Search, UserCircle } from "lucide-react";
@@ -13,6 +14,7 @@ export default function Home() {
   const [activeTab, setActiveTab] = useState<"meditate" | "sleep" | "progress">("meditate");
   const [currentSession, setCurrentSession] = useState<Session | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [showSearch, setShowSearch] = useState(false);
 
   const { data: sessions = [] } = useQuery<Session[]>({
     queryKey: ["/api/sessions"],
@@ -31,6 +33,20 @@ export default function Home() {
   const handlePlaySession = (session: Session) => {
     setCurrentSession(session);
     setIsPlaying(true);
+    
+    // Create or update progress entry
+    setTimeout(() => {
+      fetch("/api/progress", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId: 1,
+          sessionId: session.id,
+          completed: false,
+          timeSpent: 0
+        })
+      }).catch(() => {}); // Silent fail for demo
+    }, 100);
   };
 
   const handleClosePlayer = () => {
@@ -104,20 +120,25 @@ export default function Home() {
   ];
 
   return (
-    <div className="min-h-screen bg-neutral">
+    <div className="min-h-screen bg-neutral dark:bg-gray-900">
       {/* Header */}
-      <header className="bg-white sticky top-0 z-50 shadow-sm">
+      <header className="bg-white dark:bg-gray-900 sticky top-0 z-50 shadow-sm border-b dark:border-gray-700">
         <div className="max-w-6xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
               <div className="w-10 h-10 gradient-bg rounded-full flex items-center justify-center">
                 <Leaf className="text-white text-lg" />
               </div>
-              <h1 className="text-2xl font-bold text-gray-800">Mindful</h1>
+              <h1 className="text-2xl font-bold text-gray-800 dark:text-white">Mindful</h1>
             </div>
             
             <div className="flex items-center space-x-4">
-              <Button variant="ghost" size="icon" className="text-light hover:text-primary-blue">
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="text-light hover:text-primary-blue"
+                onClick={() => setShowSearch(true)}
+              >
                 <Search className="h-5 w-5" />
               </Button>
               <Button variant="ghost" size="icon" className="text-light hover:text-primary-blue">
@@ -151,19 +172,36 @@ export default function Home() {
 
             {/* Quick Start */}
             <section className="mb-12">
-              <h3 className="text-2xl font-bold text-gray-800 mb-6">Quick Start</h3>
+              <h3 className="text-2xl font-bold text-gray-800 dark:text-white mb-6">Quick Start</h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {quickStartCategories.map((category) => {
                   const Icon = category.icon;
+                  const categorySessions = meditationSessions.filter(s => s.category === category.category);
+                  const randomSession = categorySessions[Math.floor(Math.random() * categorySessions.length)];
+                  
                   return (
-                    <Card key={category.category} className="p-6 card-shadow hover:shadow-lg transition-shadow cursor-pointer">
-                      <div className={`w-12 h-12 ${category.color} rounded-xl flex items-center justify-center mb-4`}>
+                    <Card 
+                      key={category.category} 
+                      className="p-6 card-shadow hover:shadow-lg transition-all hover:transform hover:scale-[1.02] cursor-pointer group"
+                      onClick={() => randomSession && handlePlaySession(randomSession)}
+                    >
+                      <div className={`w-12 h-12 ${category.color} rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
                         <Icon className={`${category.iconColor} text-xl`} />
                       </div>
-                      <h4 className="text-lg font-semibold text-gray-800 mb-2">{category.title}</h4>
+                      <h4 className="text-lg font-semibold text-gray-800 dark:text-white mb-2">{category.title}</h4>
                       <p className="text-light mb-4">{category.description}</p>
-                      <div className="flex items-center text-sm text-light">
-                        <span>{category.duration}</span>
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-light">{category.duration}</span>
+                        <Button 
+                          size="sm" 
+                          className="opacity-0 group-hover:opacity-100 transition-opacity bg-primary-blue hover:bg-primary-blue-light"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (randomSession) handlePlaySession(randomSession);
+                          }}
+                        >
+                          Start Now
+                        </Button>
                       </div>
                     </Card>
                   );
@@ -174,7 +212,7 @@ export default function Home() {
             {/* Featured Sessions */}
             <section className="mb-12">
               <div className="flex items-center justify-between mb-6">
-                <h3 className="text-2xl font-bold text-gray-800">Featured Sessions</h3>
+                <h3 className="text-2xl font-bold text-gray-800 dark:text-white">Featured Sessions</h3>
                 <Button variant="ghost" className="text-primary-blue font-medium hover:text-primary-blue-light">
                   View All
                 </Button>
@@ -194,29 +232,74 @@ export default function Home() {
         )}
 
         {activeTab === "sleep" && (
-          <section className="mb-12">
-            <h3 className="text-2xl font-bold text-gray-800 mb-6">Sleep Stories & Sounds</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {sleepContent.map((content) => {
-                const Icon = content.icon;
-                return (
-                  <Card key={content.title} className="p-6 card-shadow hover:shadow-lg transition-all hover:transform hover:scale-105 cursor-pointer">
-                    <div className={`w-12 h-12 ${content.color} rounded-xl flex items-center justify-center mb-4`}>
-                      <Icon className="text-white text-lg" />
-                    </div>
-                    <h4 className="font-semibold text-gray-800 mb-2">{content.title}</h4>
-                    <p className="text-light text-sm mb-4">{content.description}</p>
-                    <div className="flex items-center text-sm text-light">
-                      <span>{content.duration}</span>
-                    </div>
-                  </Card>
-                );
-              })}
-            </div>
+          <>
+            {/* Sleep Hero */}
+            <section className="mb-12">
+              <div className="bg-gradient-to-br from-indigo-600 via-purple-600 to-blue-600 rounded-3xl p-8 text-white relative overflow-hidden">
+                <div className="relative z-10">
+                  <h2 className="text-3xl md:text-4xl font-bold mb-4">Sweet Dreams</h2>
+                  <p className="text-lg mb-6 opacity-90">Drift off with soothing stories and calming sounds</p>
+                  <Button className="bg-white text-indigo-600 px-8 py-3 rounded-full font-semibold hover:bg-opacity-90 transition-all transform hover:scale-105">
+                    Explore Sleep Content
+                  </Button>
+                </div>
+                <div className="absolute top-8 right-8 w-32 h-32 bg-white bg-opacity-10 rounded-full animate-float"></div>
+                <div className="absolute bottom-8 right-20 w-20 h-20 bg-white bg-opacity-10 rounded-full animate-pulse-slow"></div>
+              </div>
+            </section>
+
+            {/* Sleep Categories */}
+            <section className="mb-12">
+              <h3 className="text-2xl font-bold text-gray-800 dark:text-white mb-6">Sleep Categories</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {sleepContent.map((content) => {
+                  const Icon = content.icon;
+                  const matchingSessions = sleepSessions.filter(s => 
+                    (content.type === "story" && s.type === "sleep_story") ||
+                    (content.type === "sound" && s.type === "sleep_sound")
+                  );
+                  const randomSession = matchingSessions[Math.floor(Math.random() * matchingSessions.length)];
+                  
+                  return (
+                    <Card 
+                      key={content.title} 
+                      className="p-6 card-shadow hover:shadow-lg transition-all hover:transform hover:scale-[1.02] cursor-pointer group"
+                      onClick={() => randomSession && handlePlaySession(randomSession)}
+                    >
+                      <div className={`w-12 h-12 ${content.color} rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
+                        <Icon className="text-white text-lg" />
+                      </div>
+                      <h4 className="font-semibold text-gray-800 dark:text-white mb-2">{content.title}</h4>
+                      <p className="text-light text-sm mb-4">{content.description}</p>
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-light">{content.duration}</span>
+                        <Button 
+                          size="sm" 
+                          className="opacity-0 group-hover:opacity-100 transition-opacity bg-white text-indigo-600 hover:bg-gray-100"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (randomSession) handlePlaySession(randomSession);
+                          }}
+                        >
+                          Listen
+                        </Button>
+                      </div>
+                    </Card>
+                  );
+                })}
+              </div>
+            </section>
             
-            {/* Sleep Sessions */}
-            <div className="mt-12">
-              <h4 className="text-xl font-bold text-gray-800 mb-6">Sleep Meditations</h4>
+            {/* All Sleep Sessions */}
+            <section className="mb-12">
+              <div className="flex items-center justify-between mb-6">
+                <h4 className="text-xl font-bold text-gray-800 dark:text-white">All Sleep Content</h4>
+                <div className="flex space-x-2">
+                  <Button variant="outline" size="sm">Stories</Button>
+                  <Button variant="outline" size="sm">Sounds</Button>
+                  <Button variant="outline" size="sm">Meditations</Button>
+                </div>
+              </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {sleepSessions.map((session) => (
                   <SessionCard
@@ -226,14 +309,21 @@ export default function Home() {
                   />
                 ))}
               </div>
-            </div>
-          </section>
+            </section>
+          </>
         )}
 
         {activeTab === "progress" && (
           <ProgressStats userId={1} />
         )}
       </main>
+
+      {/* Search Modal */}
+      <SearchModal
+        isOpen={showSearch}
+        onClose={() => setShowSearch(false)}
+        onPlaySession={handlePlaySession}
+      />
 
       {/* Audio Player */}
       {currentSession && (
@@ -246,7 +336,7 @@ export default function Home() {
       )}
 
       {/* Bottom Navigation (Mobile) */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-2 md:hidden z-40">
+      <nav className="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 px-4 py-2 md:hidden z-40">
         <div className="flex items-center justify-around">
           <Button
             variant="ghost"

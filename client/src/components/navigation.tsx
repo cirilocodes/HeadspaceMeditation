@@ -13,7 +13,7 @@ export default function Navigation({ activeTab, onTabChange }: NavigationProps) 
   ];
 
   return (
-    <nav className="bg-white border-b border-gray-100 sticky top-16 z-40 hidden md:block">
+    <nav className="bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-700 sticky top-16 z-40 hidden md:block">
       <div className="max-w-6xl mx-auto px-4">
         <div className="flex space-x-8">
           {tabs.map((tab) => (
