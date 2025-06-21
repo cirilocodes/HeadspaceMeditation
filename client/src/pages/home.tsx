@@ -1,13 +1,18 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/hooks/use-toast";
 import Navigation from "@/components/navigation";
 import SessionCard from "@/components/session-card";
 import AudioPlayer from "@/components/audio-player";
 import ProgressStats from "@/components/progress-stats";
 import SearchModal from "@/components/search-modal";
+import ProfileModal from "@/components/profile-modal";
+import MeditationTimer from "@/components/meditation-timer";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Leaf, Brain, Heart, Moon, BookOpen, Waves, CloudRain, Star, Search, UserCircle } from "lucide-react";
+import { Leaf, Brain, Heart, Moon, BookOpen, Waves, CloudRain, Star, Search, UserCircle, LogOut, Play, Settings } from "lucide-react";
+import { isUnauthorizedError } from "@/lib/authUtils";
 import type { Session } from "@shared/schema";
 
 export default function Home() {
@@ -15,6 +20,25 @@ export default function Home() {
   const [currentSession, setCurrentSession] = useState<Session | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
+  const [showProfile, setShowProfile] = useState(false);
+  const [showTimer, setShowTimer] = useState(false);
+  const { user, isLoading, isAuthenticated } = useAuth();
+  const { toast } = useToast();
+
+  // Redirect to login if not authenticated
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated) {
+      toast({
+        title: "Unauthorized",
+        description: "You are logged out. Logging in again...",
+        variant: "destructive",
+      });
+      setTimeout(() => {
+        window.location.href = "/api/login";
+      }, 500);
+      return;
+    }
+  }, [isAuthenticated, isLoading, toast]);
 
   const { data: sessions = [] } = useQuery<Session[]>({
     queryKey: ["/api/sessions"],
@@ -31,6 +55,8 @@ export default function Home() {
   });
 
   const handlePlaySession = (session: Session) => {
+    if (!user) return;
+    
     setCurrentSession(session);
     setIsPlaying(true);
     
@@ -40,7 +66,7 @@ export default function Home() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          userId: 1,
+          userId: user.id,
           sessionId: session.id,
           completed: false,
           timeSpent: 0
@@ -141,8 +167,29 @@ export default function Home() {
               >
                 <Search className="h-5 w-5" />
               </Button>
-              <Button variant="ghost" size="icon" className="text-light hover:text-primary-blue">
-                <UserCircle className="h-5 w-5" />
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="text-light hover:text-primary-blue"
+                onClick={() => setShowProfile(true)}
+              >
+                {user?.profileImageUrl ? (
+                  <img 
+                    src={user.profileImageUrl} 
+                    alt="Profile" 
+                    className="w-5 h-5 rounded-full object-cover"
+                  />
+                ) : (
+                  <UserCircle className="h-5 w-5" />
+                )}
+              </Button>
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="text-light hover:text-red-500"
+                onClick={() => window.location.href = '/api/logout'}
+              >
+                <LogOut className="h-5 w-5" />
               </Button>
             </div>
           </div>
@@ -160,13 +207,31 @@ export default function Home() {
                 <div className="relative z-10">
                   <h2 className="text-3xl md:text-4xl font-bold mb-4">Find your calm</h2>
                   <p className="text-lg mb-6 opacity-90">Start your mindfulness journey with guided meditations</p>
-                  <Button className="bg-white text-primary-blue px-8 py-3 rounded-full font-semibold hover:bg-opacity-90 transition-all transform hover:scale-105">
-                    Start Meditating
-                  </Button>
+                  <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4 justify-center items-center">
+                    <Button 
+                      className="bg-white text-primary-blue px-8 py-3 rounded-full font-semibold hover:bg-opacity-90 transition-all transform hover:scale-105 shadow-lg min-w-[160px]"
+                      onClick={() => {
+                        const randomSession = meditationSessions[Math.floor(Math.random() * meditationSessions.length)];
+                        if (randomSession) handlePlaySession(randomSession);
+                      }}
+                    >
+                      <Play className="h-4 w-4 mr-2" />
+                      Quick Start
+                    </Button>
+                    <Button 
+                      variant="outline"
+                      className="bg-white/10 text-white border-white/30 px-8 py-3 rounded-full font-semibold hover:bg-white/20 transition-all transform hover:scale-105 backdrop-blur-sm min-w-[160px]"
+                      onClick={() => setShowTimer(true)}
+                    >
+                      <Settings className="h-4 w-4 mr-2" />
+                      Custom Timer
+                    </Button>
+                  </div>
                 </div>
-                {/* Decorative elements */}
-                <div className="absolute top-8 right-8 w-32 h-32 bg-white bg-opacity-10 rounded-full animate-float"></div>
+                {/* Enhanced decorative elements */}
+                <div className="absolute top-8 right-8 w-32 h-32 bg-white bg-opacity-10 rounded-full animate-float meditation-breathe"></div>
                 <div className="absolute bottom-8 right-20 w-20 h-20 bg-white bg-opacity-10 rounded-full animate-pulse-slow"></div>
+                <div className="absolute top-1/2 left-8 w-16 h-16 bg-white bg-opacity-5 rounded-full animate-float" style={{ animationDelay: '2s' }}></div>
               </div>
             </section>
 
@@ -239,7 +304,13 @@ export default function Home() {
                 <div className="relative z-10">
                   <h2 className="text-3xl md:text-4xl font-bold mb-4">Sweet Dreams</h2>
                   <p className="text-lg mb-6 opacity-90">Drift off with soothing stories and calming sounds</p>
-                  <Button className="bg-white text-indigo-600 px-8 py-3 rounded-full font-semibold hover:bg-opacity-90 transition-all transform hover:scale-105">
+                  <Button 
+                    className="bg-white text-indigo-600 px-8 py-3 rounded-full font-semibold hover:bg-opacity-90 transition-all transform hover:scale-105"
+                    onClick={() => {
+                      const randomSleepSession = sleepSessions[Math.floor(Math.random() * sleepSessions.length)];
+                      if (randomSleepSession) handlePlaySession(randomSleepSession);
+                    }}
+                  >
                     Explore Sleep Content
                   </Button>
                 </div>
@@ -313,8 +384,8 @@ export default function Home() {
           </>
         )}
 
-        {activeTab === "progress" && (
-          <ProgressStats userId={1} />
+        {activeTab === "progress" && user && (
+          <ProgressStats userId={user.id} />
         )}
       </main>
 
@@ -323,6 +394,38 @@ export default function Home() {
         isOpen={showSearch}
         onClose={() => setShowSearch(false)}
         onPlaySession={handlePlaySession}
+      />
+
+      {/* Profile Modal */}
+      {user && (
+        <ProfileModal
+          isOpen={showProfile}
+          onClose={() => setShowProfile(false)}
+          user={user}
+        />
+      )}
+
+      {/* Meditation Timer */}
+      <MeditationTimer
+        isOpen={showTimer}
+        onClose={() => setShowTimer(false)}
+        onStartSession={(duration) => {
+          // Create a custom timer session
+          const timerSession = {
+            id: 'timer-session',
+            title: `${duration} Minute Meditation`,
+            description: "Guided breathing and mindfulness",
+            category: "focus",
+            level: "beginner",
+            duration: duration,
+            audioUrl: "/audio/timer-meditation.mp3",
+            imageUrl: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=400",
+            type: "meditation",
+            createdAt: new Date()
+          };
+          handlePlaySession(timerSession as Session);
+          setShowTimer(false);
+        }}
       />
 
       {/* Audio Player */}

@@ -98,34 +98,48 @@ export default function AudioPlayer({
 
   const progressMutation = useMutation({
     mutationFn: async () => {
+      // Get current user
+      const userResponse = await fetch("/api/auth/user");
+      if (!userResponse.ok) throw new Error("Not authenticated");
+      const user = await userResponse.json();
+      
       return apiRequest("POST", "/api/progress", {
-        userId: 1,
+        userId: user.id,
         sessionId: session.id,
         completed: currentTime >= duration,
         completedAt: currentTime >= duration ? new Date().toISOString() : null,
         timeSpent: currentTime
       });
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/progress", 1] });
-      queryClient.invalidateQueries({ queryKey: ["/api/stats", 1] });
+    onSuccess: async () => {
+      const userResponse = await fetch("/api/auth/user");
+      if (userResponse.ok) {
+        const user = await userResponse.json();
+        queryClient.invalidateQueries({ queryKey: ["/api/progress", user.id] });
+        queryClient.invalidateQueries({ queryKey: ["/api/stats", user.id] });
+      }
     }
   });
 
   const favoriteMutation = useMutation({
     mutationFn: async () => {
+      // Get current user
+      const userResponse = await fetch("/api/auth/user");
+      if (!userResponse.ok) throw new Error("Not authenticated");
+      const user = await userResponse.json();
+      
       if (isFavorited) {
-        return apiRequest("DELETE", `/api/favorites/1/${session.id}`);
+        return apiRequest("DELETE", `/api/favorites/${user.id}/${session.id}`);
       } else {
         return apiRequest("POST", "/api/favorites", {
-          userId: 1,
+          userId: user.id,
           sessionId: session.id
         });
       }
     },
     onSuccess: () => {
       setIsFavorited(!isFavorited);
-      queryClient.invalidateQueries({ queryKey: ["/api/favorites", 1] });
+      queryClient.invalidateQueries({ queryKey: ["/api/favorites", "current"] });
     }
   });
 

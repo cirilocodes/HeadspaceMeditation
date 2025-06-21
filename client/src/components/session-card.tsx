@@ -3,7 +3,7 @@ import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Heart, Play, Clock, Star } from "lucide-react";
+import { Heart, Play, Clock, Star, Waves } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import type { Session, UserFavorite } from "@shared/schema";
@@ -20,7 +20,15 @@ export default function SessionCard({ session, onPlay }: SessionCardProps) {
 
   // Check if session is favorited
   const { data: favorites = [] } = useQuery<UserFavorite[]>({
-    queryKey: ["/api/favorites", 1],
+    queryKey: ["/api/favorites", "current"],
+    queryFn: async () => {
+      // We'll get the current user ID from the auth context
+      const userResponse = await fetch("/api/auth/user");
+      if (!userResponse.ok) return [];
+      const user = await userResponse.json();
+      const favResponse = await fetch(`/api/favorites/${user.id}`);
+      return favResponse.ok ? await favResponse.json() : [];
+    }
   });
 
   useEffect(() => {
@@ -29,17 +37,22 @@ export default function SessionCard({ session, onPlay }: SessionCardProps) {
 
   const favoriteMutation = useMutation({
     mutationFn: async () => {
+      // Get current user
+      const userResponse = await fetch("/api/auth/user");
+      if (!userResponse.ok) throw new Error("Not authenticated");
+      const user = await userResponse.json();
+      
       if (isFavorited) {
-        return apiRequest("DELETE", `/api/favorites/1/${session.id}`);
+        return apiRequest("DELETE", `/api/favorites/${user.id}/${session.id}`);
       } else {
         return apiRequest("POST", "/api/favorites", {
-          userId: 1,
+          userId: user.id,
           sessionId: session.id
         });
       }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/favorites", 1] });
+      queryClient.invalidateQueries({ queryKey: ["/api/favorites", "current"] });
       toast({
         title: isFavorited ? "Removed from favorites" : "Added to favorites",
         description: `${session.title} ${isFavorited ? "removed from" : "added to"} your favorites`,
@@ -54,16 +67,29 @@ export default function SessionCard({ session, onPlay }: SessionCardProps) {
     }
   });
 
-  const getLevelColor = (level: string) => {
+  const getLevelVariant = (level: string) => {
     switch (level) {
       case "beginner":
-        return "text-green bg-green bg-opacity-20";
+        return "default";
       case "intermediate":
-        return "text-primary-blue bg-primary-blue bg-opacity-20";
+        return "secondary";
       case "advanced":
-        return "text-accent-orange bg-accent-orange bg-opacity-20";
+        return "outline";
       default:
-        return "text-light bg-gray-100";
+        return "secondary";
+    }
+  };
+
+  const getLevelStyle = (level: string) => {
+    switch (level) {
+      case "beginner":
+        return "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-900/20 dark:text-emerald-300 dark:border-emerald-800";
+      case "intermediate":
+        return "bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/20 dark:text-blue-300 dark:border-blue-800";
+      case "advanced":
+        return "bg-orange-50 text-orange-700 border-orange-200 dark:bg-orange-900/20 dark:text-orange-300 dark:border-orange-800";
+      default:
+        return "bg-gray-50 text-gray-700 border-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-700";
     }
   };
 
@@ -96,13 +122,19 @@ export default function SessionCard({ session, onPlay }: SessionCardProps) {
       <div className="p-6">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center space-x-2">
-            <Badge variant="secondary" className={`${getLevelColor(session.level)} border-0`}>
+            <Badge className={`text-xs font-medium px-2 py-1 ${getLevelStyle(session.level)}`}>
               {session.level.charAt(0).toUpperCase() + session.level.slice(1)}
             </Badge>
             {session.type === "sleep_story" && (
-              <Badge variant="outline" className="text-xs">
+              <Badge variant="outline" className="text-xs bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-900/20 dark:text-purple-300 dark:border-purple-800">
                 <Star className="h-3 w-3 mr-1" />
                 Story
+              </Badge>
+            )}
+            {session.type === "sleep_sound" && (
+              <Badge variant="outline" className="text-xs bg-indigo-50 text-indigo-700 border-indigo-200 dark:bg-indigo-900/20 dark:text-indigo-300 dark:border-indigo-800">
+                <Waves className="h-3 w-3 mr-1" />
+                Sound
               </Badge>
             )}
           </div>

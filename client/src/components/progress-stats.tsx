@@ -6,7 +6,7 @@ import { Flame, Calendar, Heart, Trophy, Clock, Target } from "lucide-react";
 import type { UserStats, UserProgress } from "@shared/schema";
 
 interface ProgressStatsProps {
-  userId: number;
+  userId: string;
 }
 
 export default function ProgressStats({ userId }: ProgressStatsProps) {
