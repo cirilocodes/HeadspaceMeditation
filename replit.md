@@ -22,7 +22,9 @@ A full-stack wellness application featuring meditation sessions, workouts, user 
 ## Recent Changes
 - 2025-01-20: Project migrated from Replit Agent to Replit environment
 - 2025-01-20: PostgreSQL database provisioned for production use
-- 2025-01-20: Security configurations updated for Replit deployment
+- 2025-01-20: Google OAuth authentication completely removed for simplified development
+- 2025-01-20: Mock authentication system implemented for development
+- 2025-01-20: Application successfully deployed and running on port 5000
 
 ## Database Schema
 The app uses a comprehensive schema with tables for:
