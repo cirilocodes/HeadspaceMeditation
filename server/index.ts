@@ -51,8 +51,15 @@ app.use((req, res, next) => {
     throw err;
   });
 
-  // API-only server for React Native app
+  // Serve the React web app 
+  app.use(express.static('.'));
+  
   app.get("/", (req, res) => {
+    res.sendFile('index.html', { root: '.' });
+  });
+  
+  // API endpoint info for development
+  app.get("/api", (req, res) => {
     res.json({ 
       message: "Wellness Meditation API Server", 
       version: "1.0.0",

@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, View, SafeAreaView } from 'react-native';
+import './src/styles/mobile.css';
 import HomeScreen from './src/screens/HomeScreen';
 import SessionsScreen from './src/screens/SessionsScreen';
 import ProfileScreen from './src/screens/ProfileScreen';
@@ -21,77 +21,39 @@ export default function App() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>
+    <div className="mobile-app">
+      <div className="mobile-header">
+        <h1 className="header-title">
           {currentTab === 'Home' ? 'Wellness App' : 
            currentTab === 'Sessions' ? 'Meditation Sessions' : 'Profile'}
-        </Text>
-      </View>
+        </h1>
+      </div>
       
-      <View style={styles.content}>
+      <div className="mobile-content">
         {renderCurrentScreen()}
-      </View>
+      </div>
       
-      <View style={styles.tabBar}>
-        <Text 
-          style={[styles.tabItem, currentTab === 'Home' && styles.activeTab]} 
-          onPress={() => setCurrentTab('Home')}
+      <div className="mobile-tab-bar">
+        <button 
+          className={`tab-item ${currentTab === 'Home' ? 'active' : ''}`}
+          onClick={() => setCurrentTab('Home')}
         >
           Home
-        </Text>
-        <Text 
-          style={[styles.tabItem, currentTab === 'Sessions' && styles.activeTab]} 
-          onPress={() => setCurrentTab('Sessions')}
+        </button>
+        <button 
+          className={`tab-item ${currentTab === 'Sessions' ? 'active' : ''}`}
+          onClick={() => setCurrentTab('Sessions')}
         >
           Sessions
-        </Text>
-        <Text 
-          style={[styles.tabItem, currentTab === 'Profile' && styles.activeTab]} 
-          onPress={() => setCurrentTab('Profile')}
+        </button>
+        <button 
+          className={`tab-item ${currentTab === 'Profile' ? 'active' : ''}`}
+          onClick={() => setCurrentTab('Profile')}
         >
           Profile
-        </Text>
-      </View>
-    </SafeAreaView>
+        </button>
+      </div>
+    </div>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f8fafc',
-  },
-  header: {
-    backgroundColor: '#6366f1',
-    paddingVertical: 16,
-    paddingHorizontal: 20,
-  },
-  headerTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#ffffff',
-    textAlign: 'center',
-  },
-  content: {
-    flex: 1,
-  },
-  tabBar: {
-    backgroundColor: '#ffffff',
-    borderTopColor: '#e2e8f0',
-    borderTopWidth: 1,
-    flexDirection: 'row',
-    paddingVertical: 12,
-  },
-  tabItem: {
-    flex: 1,
-    textAlign: 'center',
-    fontSize: 16,
-    color: '#9ca3af',
-    paddingVertical: 8,
-  },
-  activeTab: {
-    color: '#6366f1',
-    fontWeight: '600',
-  },
-});

@@ -39,6 +39,8 @@ The app uses a comprehensive schema with tables for:
 None specified yet.
 
 ## Development Setup
-- Uses `npm run dev` to start both frontend and backend
+- Backend API server: `npm run dev` (runs on port 5000)
+- React Native app: `npx expo start` (runs on expo development server)
 - Database migrations handled through Drizzle Kit
-- Environment configured for 0.0.0.0:5000 binding
+- Backend configured for 0.0.0.0:5000 binding
+- React Native app connects to backend API

@@ -1,5 +1,4 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 
 export default function ProfileScreen() {
   const userStats = {
@@ -17,235 +16,80 @@ export default function ProfileScreen() {
   ];
 
   return (
-    <ScrollView style={styles.container}>
-      <View style={styles.profileHeader}>
-        <View style={styles.avatar}>
-          <Text style={styles.avatarText}>DU</Text>
-        </View>
-        <Text style={styles.userName}>Demo User</Text>
-        <Text style={styles.userEmail}>demo@example.com</Text>
-      </View>
+    <div className="screen">
+      <div className="profile-header">
+        <div className="avatar">
+          DU
+        </div>
+        <h2 className="user-name">Demo User</h2>
+        <p className="user-email">demo@example.com</p>
+      </div>
 
-      <View style={styles.statsSection}>
-        <Text style={styles.sectionTitle}>Your Journey</Text>
+      <div>
+        <h3 className="section-title">Your Journey</h3>
         
-        <View style={styles.statsGrid}>
-          <View style={styles.statItem}>
-            <Text style={styles.statNumber}>{userStats.totalMinutes}</Text>
-            <Text style={styles.statLabel}>Total Minutes</Text>
-          </View>
+        <div className="stats-grid">
+          <div className="stat-card">
+            <span className="stat-number">{userStats.totalMinutes}</span>
+            <div className="stat-label">Total Minutes</div>
+          </div>
           
-          <View style={styles.statItem}>
-            <Text style={styles.statNumber}>{userStats.currentStreak}</Text>
-            <Text style={styles.statLabel}>Current Streak</Text>
-          </View>
+          <div className="stat-card">
+            <span className="stat-number">{userStats.currentStreak}</span>
+            <div className="stat-label">Current Streak</div>
+          </div>
           
-          <View style={styles.statItem}>
-            <Text style={styles.statNumber}>{userStats.totalSessions}</Text>
-            <Text style={styles.statLabel}>Sessions</Text>
-          </View>
+          <div className="stat-card">
+            <span className="stat-number">{userStats.totalSessions}</span>
+            <div className="stat-label">Sessions</div>
+          </div>
           
-          <View style={styles.statItem}>
-            <Text style={styles.statNumber}>{userStats.favoriteCategory}</Text>
-            <Text style={styles.statLabel}>Favorite</Text>
-          </View>
-        </View>
-      </View>
+          <div className="stat-card">
+            <span className="stat-number">{userStats.favoriteCategory}</span>
+            <div className="stat-label">Favorite</div>
+          </div>
+        </div>
+      </div>
 
-      <View style={styles.achievementsSection}>
-        <Text style={styles.sectionTitle}>Achievements</Text>
+      <div>
+        <h3 className="section-title">Achievements</h3>
         
         {achievements.map((achievement, index) => (
-          <View key={index} style={[styles.achievementCard, !achievement.completed && styles.incompleteCard]}>
-            <View style={styles.achievementContent}>
-              <Text style={[styles.achievementTitle, !achievement.completed && styles.incompleteText]}>
+          <div key={index} className={`achievement-card ${!achievement.completed ? 'incomplete' : ''}`}>
+            <div className="achievement-content">
+              <h4 className="achievement-title">
                 {achievement.title}
-              </Text>
-              <Text style={[styles.achievementDescription, !achievement.completed && styles.incompleteText]}>
+              </h4>
+              <p className="achievement-description">
                 {achievement.description}
-              </Text>
-            </View>
-            <View style={[styles.achievementBadge, achievement.completed ? styles.completedBadge : styles.incompleteBadge]}>
-              <Text style={styles.badgeText}>{achievement.completed ? '✓' : '○'}</Text>
-            </View>
-          </View>
+              </p>
+            </div>
+            <div className={`achievement-badge ${achievement.completed ? 'completed' : 'incomplete'}`}>
+              {achievement.completed ? '✓' : '○'}
+            </div>
+          </div>
         ))}
-      </View>
+      </div>
 
-      <View style={styles.settingsSection}>
-        <Text style={styles.sectionTitle}>Settings</Text>
+      <div>
+        <h3 className="section-title">Settings</h3>
         
-        <TouchableOpacity style={styles.settingItem}>
-          <Text style={styles.settingText}>Notification Preferences</Text>
-          <Text style={styles.settingArrow}>›</Text>
-        </TouchableOpacity>
+        <div className="setting-item">
+          <span className="setting-text">Notification Preferences</span>
+          <span className="setting-arrow">›</span>
+        </div>
         
-        <TouchableOpacity style={styles.settingItem}>
-          <Text style={styles.settingText}>Audio Quality</Text>
-          <Text style={styles.settingArrow}>›</Text>
-        </TouchableOpacity>
+        <div className="setting-item">
+          <span className="setting-text">Audio Quality</span>
+          <span className="setting-arrow">›</span>
+        </div>
         
-        <TouchableOpacity style={styles.settingItem}>
-          <Text style={styles.settingText}>Daily Goals</Text>
-          <Text style={styles.settingArrow}>›</Text>
-        </TouchableOpacity>
-      </View>
-    </ScrollView>
+        <div className="setting-item">
+          <span className="setting-text">Daily Goals</span>
+          <span className="setting-arrow">›</span>
+        </div>
+      </div>
+    </div>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f8fafc',
-  },
-  profileHeader: {
-    backgroundColor: '#ffffff',
-    alignItems: 'center',
-    padding: 30,
-    borderBottomWidth: 1,
-    borderBottomColor: '#e2e8f0',
-  },
-  avatar: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: '#6366f1',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  avatarText: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#ffffff',
-  },
-  userName: {
-    fontSize: 20,
-    fontWeight: '600',
-    color: '#1f2937',
-    marginBottom: 4,
-  },
-  userEmail: {
-    fontSize: 14,
-    color: '#6b7280',
-  },
-  statsSection: {
-    padding: 20,
-  },
-  sectionTitle: {
-    fontSize: 20,
-    fontWeight: '600',
-    color: '#1f2937',
-    marginBottom: 16,
-  },
-  statsGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-  },
-  statItem: {
-    backgroundColor: '#ffffff',
-    padding: 16,
-    borderRadius: 12,
-    width: '48%',
-    marginBottom: 12,
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  statNumber: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#6366f1',
-    marginBottom: 4,
-  },
-  statLabel: {
-    fontSize: 12,
-    color: '#6b7280',
-    textAlign: 'center',
-  },
-  achievementsSection: {
-    padding: 20,
-    paddingTop: 0,
-  },
-  achievementCard: {
-    backgroundColor: '#ffffff',
-    padding: 16,
-    borderRadius: 12,
-    marginBottom: 12,
-    flexDirection: 'row',
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  incompleteCard: {
-    backgroundColor: '#f9fafb',
-  },
-  achievementContent: {
-    flex: 1,
-  },
-  achievementTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#1f2937',
-    marginBottom: 4,
-  },
-  achievementDescription: {
-    fontSize: 14,
-    color: '#6b7280',
-  },
-  incompleteText: {
-    color: '#9ca3af',
-  },
-  achievementBadge: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  completedBadge: {
-    backgroundColor: '#10b981',
-  },
-  incompleteBadge: {
-    backgroundColor: '#e5e7eb',
-  },
-  badgeText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#ffffff',
-  },
-  settingsSection: {
-    padding: 20,
-    paddingTop: 0,
-  },
-  settingItem: {
-    backgroundColor: '#ffffff',
-    padding: 16,
-    borderRadius: 12,
-    marginBottom: 8,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  settingText: {
-    fontSize: 16,
-    color: '#1f2937',
-  },
-  settingArrow: {
-    fontSize: 20,
-    color: '#9ca3af',
-  },
-});

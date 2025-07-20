@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wellness Meditation App</title>
+    <meta name="description" content="A mobile wellness application for meditation, mindfulness, and daily wellness goals.">
+    <link rel="stylesheet" href="/src/styles/mobile.css">
+</head>
+<body>
+    <div id="root"></div>
+    <script type="text/babel" src="/App.tsx"></script>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script type="text/babel">
+      const { useState } = React;
+      const e = React.createElement;
+
+      function App() {
+        const [currentTab, setCurrentTab] = useState('Home');
+
+        // Import inline components for simplicity
+        function HomeScreen() {
+          const todayStats = {
+            meditationMinutes: 15,
+            targetMeditation: 20,
+            workoutMinutes: 30,
+            targetWorkout: 45,
+            currentStreak: 7,
+          };
+
+          return (
+            <div className="screen">
+              <div className="welcome-section">
+                <h2 className="welcome-text">Welcome back!</h2>
+                <p className="subtitle">Ready for today's wellness journey?</p>
+              </div>
+
+              <div>
+                <h3 className="section-title">Today's Progress</h3>
+                
+                <div className="stats-grid">
+                  <div className="stat-card">
+                    <span className="stat-number">{todayStats.meditationMinutes}</span>
+                    <div className="stat-label">Meditation Minutes</div>
+                    <div className="stat-target">Goal: {todayStats.targetMeditation}</div>
+                  </div>
+                  
+                  <div className="stat-card">
+                    <span className="stat-number">{todayStats.workoutMinutes}</span>
+                    <div className="stat-label">Workout Minutes</div>
+                    <div className="stat-target">Goal: {todayStats.targetWorkout}</div>
+                  </div>
+                  
+                  <div className="stat-card">
+                    <span className="stat-number">{todayStats.currentStreak}</span>
+                    <div className="stat-label">Day Streak</div>
+                    <div className="stat-target">Keep it up!</div>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <h3 className="section-title">Quick Start</h3>
+                
+                <button className="action-button">
+                  Start Meditation
+                </button>
+                
+                <button className="action-button secondary">
+                  Begin Workout
+                </button>
+              </div>
+            </div>
+          );
+        }
+
+        function SessionsScreen() {
+          const sessions = [
+            {
+              id: '1',
+              title: 'Morning Mindfulness',
+              description: 'Start your day with gentle awareness',
+              duration: 10,
+              category: 'focus',
+              level: 'beginner'
+            },
+            {
+              id: '2',
+              title: 'Stress Relief',
+              description: 'Release tension and find calm',
+              duration: 15,
+              category: 'stress',
+              level: 'intermediate'
+            },
+            {
+              id: '3',
+              title: 'Deep Sleep',
+              description: 'Peaceful journey to restful sleep',
+              duration: 20,
+              category: 'sleep',
+              level: 'beginner'
+            },
+            {
+              id: '4',
+              title: 'Focus Boost',
+              description: 'Enhance concentration and clarity',
+              duration: 12,
+              category: 'focus',
+              level: 'advanced'
+            }
+          ];
+
+          const getCategoryColor = (category) => {
+            switch (category) {
+              case 'focus': return '#3b82f6';
+              case 'stress': return '#10b981';
+              case 'sleep': return '#8b5cf6';
+              default: return '#6b7280';
+            }
+          };
+
+          return (
+            <div className="screen">
+              <div style={{ background: 'white', padding: '20px', marginBottom: '20px', marginTop: '-20px', marginLeft: '-20px', marginRight: '-20px', borderBottom: '1px solid #e2e8f0' }}>
+                <h2 style={{ fontSize: '24px', fontWeight: 'bold', color: '#1f2937', marginBottom: '4px' }}>Meditation Sessions</h2>
+                <p style={{ fontSize: '16px', color: '#6b7280' }}>Choose your practice</p>
+              </div>
+
+              <div>
+                {sessions.map((session) => (
+                  <div key={session.id} className="session-card">
+                    <div className="session-header">
+                      <h3 className="session-title">{session.title}</h3>
+                      <div className="category-badge" style={{ backgroundColor: getCategoryColor(session.category) }}>
+                        <span>{session.category}</span>
+                      </div>
+                    </div>
+                    
+                    <p className="session-description">{session.description}</p>
+                    
+                    <div className="session-footer">
+                      <span className="duration">{session.duration} min</span>
+                      <span className="level">{session.level}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          );
+        }
+
+        function ProfileScreen() {
+          const userStats = {
+            totalMinutes: 1250,
+            currentStreak: 7,
+            totalSessions: 45,
+            favoriteCategory: 'Focus',
+          };
+
+          const achievements = [
+            { title: '7-Day Streak', description: 'Meditated for 7 consecutive days', completed: true },
+            { title: 'First Session', description: 'Completed your first meditation', completed: true },
+            { title: '100 Minutes', description: 'Accumulated 100 minutes of practice', completed: true },
+            { title: '30-Day Challenge', description: 'Complete 30 days of meditation', completed: false },
+          ];
+
+          return (
+            <div className="screen">
+              <div className="profile-header">
+                <div className="avatar">
+                  DU
+                </div>
+                <h2 className="user-name">Demo User</h2>
+                <p className="user-email">demo@example.com</p>
+              </div>
+
+              <div>
+                <h3 className="section-title">Your Journey</h3>
+                
+                <div className="stats-grid">
+                  <div className="stat-card">
+                    <span className="stat-number">{userStats.totalMinutes}</span>
+                    <div className="stat-label">Total Minutes</div>
+                  </div>
+                  
+                  <div className="stat-card">
+                    <span className="stat-number">{userStats.currentStreak}</span>
+                    <div className="stat-label">Current Streak</div>
+                  </div>
+                  
+                  <div className="stat-card">
+                    <span className="stat-number">{userStats.totalSessions}</span>
+                    <div className="stat-label">Sessions</div>
+                  </div>
+                  
+                  <div className="stat-card">
+                    <span className="stat-number">{userStats.favoriteCategory}</span>
+                    <div className="stat-label">Favorite</div>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <h3 className="section-title">Achievements</h3>
+                
+                {achievements.map((achievement, index) => (
+                  <div key={index} className={`achievement-card ${!achievement.completed ? 'incomplete' : ''}`}>
+                    <div className="achievement-content">
+                      <h4 className="achievement-title">
+                        {achievement.title}
+                      </h4>
+                      <p className="achievement-description">
+                        {achievement.description}
+                      </p>
+                    </div>
+                    <div className={`achievement-badge ${achievement.completed ? 'completed' : 'incomplete'}`}>
+                      {achievement.completed ? '✓' : '○'}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div>
+                <h3 className="section-title">Settings</h3>
+                
+                <div className="setting-item">
+                  <span className="setting-text">Notification Preferences</span>
+                  <span className="setting-arrow">›</span>
+                </div>
+                
+                <div className="setting-item">
+                  <span className="setting-text">Audio Quality</span>
+                  <span className="setting-arrow">›</span>
+                </div>
+                
+                <div className="setting-item">
+                  <span className="setting-text">Daily Goals</span>
+                  <span className="setting-arrow">›</span>
+                </div>
+              </div>
+            </div>
+          );
+        }
+
+        const renderCurrentScreen = () => {
+          switch (currentTab) {
+            case 'Home':
+              return <HomeScreen />;
+            case 'Sessions':
+              return <SessionsScreen />;
+            case 'Profile':
+              return <ProfileScreen />;
+            default:
+              return <HomeScreen />;
+          }
+        };
+
+        return (
+          <div className="mobile-app">
+            <div className="mobile-header">
+              <h1 className="header-title">
+                {currentTab === 'Home' ? 'Wellness App' : 
+                 currentTab === 'Sessions' ? 'Meditation Sessions' : 'Profile'}
+              </h1>
+            </div>
+            
+            <div className="mobile-content">
+              {renderCurrentScreen()}
+            </div>
+            
+            <div className="mobile-tab-bar">
+              <button 
+                className={`tab-item ${currentTab === 'Home' ? 'active' : ''}`}
+                onClick={() => setCurrentTab('Home')}
+              >
+                Home
+              </button>
+              <button 
+                className={`tab-item ${currentTab === 'Sessions' ? 'active' : ''}`}
+                onClick={() => setCurrentTab('Sessions')}
+              >
+                Sessions
+              </button>
+              <button 
+                className={`tab-item ${currentTab === 'Profile' ? 'active' : ''}`}
+                onClick={() => setCurrentTab('Profile')}
+              >
+                Profile
+              </button>
+            </div>
+          </div>
+        );
+      }
+
+      ReactDOM.render(<App />, document.getElementById('root'));
+    </script>
+</body>
+</html>

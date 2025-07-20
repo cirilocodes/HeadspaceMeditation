@@ -1,0 +1,369 @@
+/* Mobile-first CSS for the wellness app */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background-color: #f8fafc;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.mobile-app {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  max-width: 428px;
+  margin: 0 auto;
+  background-color: #f8fafc;
+  border-left: 1px solid #e2e8f0;
+  border-right: 1px solid #e2e8f0;
+}
+
+.mobile-header {
+  background-color: #6366f1;
+  padding: 16px 20px;
+  text-align: center;
+  position: fixed;
+  top: 0;
+  width: 100%;
+  max-width: 428px;
+  z-index: 100;
+}
+
+.header-title {
+  font-size: 20px;
+  font-weight: bold;
+  color: #ffffff;
+  margin: 0;
+}
+
+.mobile-content {
+  flex: 1;
+  overflow-y: auto;
+  padding-top: 70px;
+  padding-bottom: 80px;
+  -webkit-overflow-scrolling: touch;
+}
+
+.mobile-tab-bar {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  max-width: 428px;
+  background-color: #ffffff;
+  border-top: 1px solid #e2e8f0;
+  display: flex;
+  padding: 12px 0;
+  z-index: 100;
+}
+
+.tab-item {
+  flex: 1;
+  text-align: center;
+  font-size: 16px;
+  color: #9ca3af;
+  padding: 8px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.tab-item.active {
+  color: #6366f1;
+  font-weight: 600;
+}
+
+.tab-item:hover {
+  color: #6366f1;
+}
+
+/* Screen styles */
+.screen {
+  padding: 20px;
+  min-height: calc(100vh - 150px);
+}
+
+.welcome-section {
+  background-color: #6366f1;
+  padding: 20px;
+  margin: -20px -20px 20px -20px;
+  color: white;
+}
+
+.welcome-text {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 4px;
+}
+
+.subtitle {
+  font-size: 16px;
+  color: #e2e8f0;
+}
+
+.section-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 16px;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.stat-card {
+  background: white;
+  padding: 16px;
+  border-radius: 12px;
+  text-align: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.stat-number {
+  font-size: 28px;
+  font-weight: bold;
+  color: #6366f1;
+  display: block;
+}
+
+.stat-label {
+  font-size: 14px;
+  color: #6b7280;
+  margin-top: 4px;
+}
+
+.stat-target {
+  font-size: 12px;
+  color: #9ca3af;
+  margin-top: 2px;
+}
+
+.action-button {
+  background-color: #6366f1;
+  color: white;
+  padding: 16px;
+  border-radius: 12px;
+  border: none;
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 12px;
+  width: 100%;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.action-button:hover {
+  background-color: #5b5cf6;
+}
+
+.action-button.secondary {
+  background-color: white;
+  color: #6366f1;
+  border: 2px solid #6366f1;
+}
+
+.action-button.secondary:hover {
+  background-color: #f8fafc;
+}
+
+/* Session cards */
+.session-card {
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.session-card:hover {
+  transform: translateY(-2px);
+}
+
+.session-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.session-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1f2937;
+  flex: 1;
+}
+
+.category-badge {
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+  color: white;
+  text-transform: capitalize;
+}
+
+.session-description {
+  font-size: 14px;
+  color: #6b7280;
+  margin-bottom: 12px;
+  line-height: 1.4;
+}
+
+.session-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.duration {
+  font-size: 14px;
+  font-weight: 500;
+  color: #6366f1;
+}
+
+.level {
+  font-size: 14px;
+  color: #9ca3af;
+  text-transform: capitalize;
+}
+
+/* Profile styles */
+.profile-header {
+  background: white;
+  text-align: center;
+  padding: 30px 20px;
+  margin: -20px -20px 20px -20px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 40px;
+  background-color: #6366f1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px;
+  color: white;
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.user-name {
+  font-size: 20px;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 4px;
+}
+
+.user-email {
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.achievement-card {
+  background: white;
+  padding: 16px;
+  border-radius: 12px;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.achievement-card.incomplete {
+  background: #f9fafb;
+}
+
+.achievement-content {
+  flex: 1;
+}
+
+.achievement-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 4px;
+}
+
+.achievement-description {
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.achievement-card.incomplete .achievement-title,
+.achievement-card.incomplete .achievement-description {
+  color: #9ca3af;
+}
+
+.achievement-badge {
+  width: 32px;
+  height: 32px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: bold;
+  color: white;
+}
+
+.achievement-badge.completed {
+  background-color: #10b981;
+}
+
+.achievement-badge.incomplete {
+  background-color: #e5e7eb;
+}
+
+.setting-item {
+  background: white;
+  padding: 16px;
+  border-radius: 12px;
+  margin-bottom: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.setting-item:hover {
+  background-color: #f8fafc;
+}
+
+.setting-text {
+  font-size: 16px;
+  color: #1f2937;
+}
+
+.setting-arrow {
+  font-size: 20px;
+  color: #9ca3af;
+}
+
+/* Responsive design */
+@media (max-width: 480px) {
+  .mobile-app {
+    max-width: 100%;
+    border: none;
+  }
+  
+  .mobile-header,
+  .mobile-tab-bar {
+    max-width: 100%;
+  }
+}
