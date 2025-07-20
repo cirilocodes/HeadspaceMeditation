@@ -1,5 +1,7 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
+import fs from 'fs';
+import path from 'path';
 
 function log(message: string) {
   const timestamp = new Date().toLocaleTimeString();
@@ -51,12 +53,58 @@ app.use((req, res, next) => {
     throw err;
   });
 
-  // Serve the React web app 
-  app.use(express.static('.'));
+  // Serve built React app from dist directory if it exists, otherwise serve development files
   
-  app.get("/", (req, res) => {
-    res.sendFile('index.html', { root: '.' });
-  });
+  const distPath = path.join(process.cwd(), 'dist');
+  const hasBuild = fs.existsSync(distPath);
+  
+  if (hasBuild) {
+    // Production: serve built files
+    app.use(express.static('dist'));
+    app.get("/", (req, res) => {
+      res.sendFile('index.html', { root: 'dist' });
+    });
+    
+    // Handle React routing for production
+    app.get('*', (req, res) => {
+      if (!req.path.startsWith('/api')) {
+        res.sendFile('index.html', { root: 'dist' });
+      }
+    });
+  } else {
+    // Development: serve source files with proper MIME types
+    app.use((req, res, next) => {
+      if (req.path.endsWith('.js') || req.path.endsWith('.mjs')) {
+        res.type('application/javascript');
+      } else if (req.path.endsWith('.tsx') || req.path.endsWith('.ts')) {
+        res.type('application/javascript');
+      } else if (req.path.endsWith('.css')) {
+        res.type('text/css');
+      }
+      next();
+    });
+
+    app.use(express.static('.', {
+      setHeaders: (res, path) => {
+        if (path.endsWith('.js') || path.endsWith('.mjs')) {
+          res.setHeader('Content-Type', 'application/javascript');
+        } else if (path.endsWith('.css')) {
+          res.setHeader('Content-Type', 'text/css');
+        }
+      }
+    }));
+    
+    app.get("/", (req, res) => {
+      res.sendFile('index.html', { root: '.' });
+    });
+
+    // Handle React routing for development
+    app.get('*', (req, res) => {
+      if (!req.path.startsWith('/api') && !req.path.includes('.')) {
+        res.sendFile('index.html', { root: '.' });
+      }
+    });
+  }
   
   // API endpoint info for development
   app.get("/api", (req, res) => {
