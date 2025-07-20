@@ -1,14 +1,14 @@
 # Wellness & Meditation App
 
 ## Project Overview
-A full-stack wellness application featuring meditation sessions, workouts, user progress tracking, and daily goals. Built with React/TypeScript frontend and Express backend using PostgreSQL for data persistence.
+A mobile wellness application featuring meditation sessions, workouts, user progress tracking, and daily goals. Built with React Native frontend and Express backend using PostgreSQL for data persistence.
 
 ## Architecture
-- Frontend: React with TypeScript, Vite, Tailwind CSS, shadcn/ui components
-- Backend: Express.js with TypeScript
+- Frontend: React Native with TypeScript
+- Backend: Express.js with TypeScript API server
 - Database: PostgreSQL with Drizzle ORM
-- Authentication: Google OAuth and local authentication with Passport.js
-- State Management: TanStack Query for server state
+- Authentication: Simplified session-based auth
+- State Management: React Native async storage and context
 
 ## Key Features
 - Meditation sessions with audio playback
@@ -25,6 +25,7 @@ A full-stack wellness application featuring meditation sessions, workouts, user 
 - 2025-01-20: Google OAuth authentication completely removed for simplified development
 - 2025-01-20: Mock authentication system implemented for development
 - 2025-01-20: Application successfully deployed and running on port 5000
+- 2025-01-20: Converting from React web app to React Native mobile app per user request
 
 ## Database Schema
 The app uses a comprehensive schema with tables for:

@@ -1,6 +1,10 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
-import { setupVite, serveStatic, log } from "./vite";
+
+function log(message: string) {
+  const timestamp = new Date().toLocaleTimeString();
+  console.log(`${timestamp} [express] ${message}`);
+}
 
 const app = express();
 app.use(express.json());
@@ -47,14 +51,14 @@ app.use((req, res, next) => {
     throw err;
   });
 
-  // importantly only setup vite in development and after
-  // setting up all the other routes so the catch-all route
-  // doesn't interfere with the other routes
-  if (app.get("env") === "development") {
-    await setupVite(app, server);
-  } else {
-    serveStatic(app);
-  }
+  // API-only server for React Native app
+  app.get("/", (req, res) => {
+    res.json({ 
+      message: "Wellness Meditation API Server", 
+      version: "1.0.0",
+      endpoints: ["/api/sessions", "/api/auth/user", "/api/progress"]
+    });
+  });
 
   // ALWAYS serve the app on port 5000
   // this serves both the API and the client.
